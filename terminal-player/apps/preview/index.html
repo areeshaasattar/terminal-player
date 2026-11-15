@@ -3,10 +3,29 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>terminal-player - Video.js</title>
+    <title>Terminal Player</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: #0a0a0a;
+        color: #ffb000;
+        font-family: 'JetBrains Mono', 'IBM Plex Mono', 'Cascadia Code', 'Fira Code', 'Courier New', monospace;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      h1 { font-size: 18px; margin: 0; letter-spacing: 0.05em; }
+      .hint { font-size: 12px; opacity: 0.7; margin: 0; }
+      #root { width: 100%; max-width: 896px; }
+    </style>
   </head>
-  <body class="text-foreground h-screen overflow-hidden font-sans">
-    <div id="root" class="h-full"></div>
-    <script type="module" src="/src/shell/main.tsx"></script>
+  <body>
+    <h1>Terminal Player</h1>
+    <p class="hint">press >_ and type help</p>
+    <div id="root"></div>
+    <script type="module" src="/src/frame/main.tsx"></script>
   </body>
 </html>
