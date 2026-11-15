@@ -7,10 +7,10 @@ import { formatTerminalTime } from '../utils/format-time';
 
 // Chapter data matching the VTT file
 export const CHAPTERS = [
-  { index: 1, slug: 'intro', label: 'A Never-Before-Seen Look', time: 0, file: '01_intro.mp4' },
-  { index: 2, slug: 'voyage', label: 'The Voyage to Cosmic Dawn', time: 10, file: '02_voyage.mp4' },
-  { index: 3, slug: 'building', label: 'Building and Launching Webb', time: 20, file: '03_building.mp4' },
-  { index: 4, slug: 'challenges', label: 'The Challenges and Promise of Webb', time: 30, file: '04_challenges.mp4' },
+  { index: 1, slug: 'intro', label: 'Intro', time: 0, file: '01_intro.mp4' },
+  { index: 2, slug: 'work', label: 'Work', time: 7, file: '02_work.mp4' },
+  { index: 3, slug: 'detail', label: 'Detail', time: 14, file: '03_detail.mp4' },
+  { index: 4, slug: 'outro', label: 'Outro', time: 21, file: '04_outro.mp4' },
 ];
 
 function padTime(n: number) {
@@ -63,6 +63,8 @@ export function TerminalCommandLine({ open, onClose, onFocusChange }: CommandLin
     fullscreen: Boolean(s.fullscreen),
   }));
   const api = usePlayer();
+  // eslint-disable-next-line no-console
+  console.log('SEEK FN:', api?.seek?.toString?.().slice(0, 200));
 
   const [value, setValue] = useState('');
   const [output, setOutput] = useState('');
@@ -118,11 +120,15 @@ export function TerminalCommandLine({ open, onClose, onFocusChange }: CommandLin
         case 'seek': {
           if (arg === '+10') {
             const t = Math.min(player.currentTime + 10, player.duration);
+            try { (api as any).currentTime = t; } catch (e) { /* ignore */ }
             (api as any).seek?.(t);
+            const v = document.querySelector('video'); if (v) v.currentTime = t;
             result = `seeked to ${formatTerminalTime(t)}`;
           } else if (arg === '-10') {
             const t = Math.max(player.currentTime - 10, 0);
+            try { (api as any).currentTime = t; } catch (e) { /* ignore */ }
             (api as any).seek?.(t);
+            const v = document.querySelector('video'); if (v) v.currentTime = t;
             result = `seeked to ${formatTerminalTime(t)}`;
           } else {
             const t = parseSeekTarget(arg);
@@ -130,7 +136,9 @@ export function TerminalCommandLine({ open, onClose, onFocusChange }: CommandLin
               result = `error: invalid time "${arg}". use mm:ss, hh:mm:ss, or seconds`;
             } else {
               const clamped = Math.max(0, Math.min(t, player.duration || Infinity));
+              try { (api as any).currentTime = clamped; } catch (e) { /* ignore */ }
               (api as any).seek?.(clamped);
+              const v = document.querySelector('video'); if (v) v.currentTime = clamped;
               result = `seeked to ${formatTerminalTime(clamped)}`;
             }
           }
@@ -180,7 +188,9 @@ export function TerminalCommandLine({ open, onClose, onFocusChange }: CommandLin
             if (!ch) {
               result = `error: no chapter matching "${arg}"`;
             } else {
+              try { (api as any).currentTime = ch.time; } catch (e) { /* ignore */ }
               (api as any).seek?.(ch.time);
+              const v = document.querySelector('video'); if (v) v.currentTime = ch.time;
               result = `cd ${ch.file}  →  ${secondsToMMSS(ch.time)}`;
             }
           }
