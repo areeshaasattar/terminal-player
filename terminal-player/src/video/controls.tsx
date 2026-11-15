@@ -4,8 +4,9 @@ import { Controls, Tooltip } from '@videojs/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { TerminalChapterMenu } from './components/terminal-chapter-menu';
-import { TerminalEndScreen } from './components/terminal-end-screen';
+import { TerminalChapterOverlay } from './components/terminal-chapter-overlay';
 import { TerminalCommandLine } from './components/terminal-command-line';
+import { TerminalEndScreen } from './components/terminal-end-screen';
 import { TerminalFullscreenButton } from './components/terminal-fullscreen-button';
 import { TerminalPlayButton } from './components/terminal-play-button';
 import { TerminalSeekBar } from './components/terminal-seek-bar';
@@ -17,7 +18,9 @@ import { useCmdFocus } from './shared/cmd-focus-context';
 export function VideoControls(_props: { renderThumbnail?: any } = {}) {
   const { setCmdFocused } = useCmdFocus();
   const [cliOpen, setCliOpen] = useState(false);
+  const [chapterOpen, setChapterOpen] = useState(false);
   const toggleBtnRef = useRef<HTMLButtonElement>(null);
+  const chapterBtnRef = useRef<HTMLButtonElement>(null);
 
   const closeCli = useCallback(() => {
     setCliOpen(false);
@@ -26,10 +29,22 @@ export function VideoControls(_props: { renderThumbnail?: any } = {}) {
   }, [setCmdFocused]);
 
   const openCli = useCallback(() => {
+    setChapterOpen(false);
     setCliOpen(true);
   }, []);
 
-  // Backtick toggles; Escape closes
+  const closeChapters = useCallback(() => {
+    setChapterOpen(false);
+    const btn = document.querySelector('.terminal-chapters-btn') as HTMLButtonElement | null;
+    btn?.focus();
+  }, []);
+
+  const openChapters = useCallback(() => {
+    setCliOpen(false);
+    setChapterOpen(true);
+  }, []);
+
+  // Backtick toggles command line; Escape closes whichever is open
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
@@ -37,18 +52,16 @@ export function VideoControls(_props: { renderThumbnail?: any } = {}) {
 
       if (e.key === '`' && !inInput) {
         e.preventDefault();
-        setCliOpen((prev) => !prev);
-      } else if (e.key === 'Escape' && cliOpen) {
-        // only if not handled by input
-        if (!inInput) {
-          e.preventDefault();
-          closeCli();
-        }
+        if (cliOpen) closeCli();
+        else { setChapterOpen(false); setCliOpen(true); }
+      } else if (e.key === 'Escape' && !inInput) {
+        if (cliOpen) { e.preventDefault(); closeCli(); }
+        else if (chapterOpen) { e.preventDefault(); closeChapters(); }
       }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [cliOpen, closeCli]);
+  }, [cliOpen, chapterOpen, closeCli, closeChapters]);
 
   return (
     <Controls.Root>
@@ -57,11 +70,8 @@ export function VideoControls(_props: { renderThumbnail?: any } = {}) {
         <Tooltip.Provider>
           <div className="terminal-controls-panel">
             <TerminalEndScreen />
-            <TerminalCommandLine
-              open={cliOpen}
-              onClose={closeCli}
-              onFocusChange={setCmdFocused}
-            />
+            <TerminalChapterOverlay open={chapterOpen} onClose={closeChapters} />
+            <TerminalCommandLine open={cliOpen} onClose={closeCli} onFocusChange={setCmdFocused} />
             <TerminalStatusLine />
             <div className="terminal-controls-bar">
               <div className="terminal-seek-row">
@@ -73,7 +83,6 @@ export function VideoControls(_props: { renderThumbnail?: any } = {}) {
                   <TerminalTimeDisplay />
                 </div>
                 <div className="terminal-actions-end">
-                  {/* Command line toggle */}
                   <button
                     ref={toggleBtnRef}
                     type="button"
@@ -87,8 +96,7 @@ export function VideoControls(_props: { renderThumbnail?: any } = {}) {
                       &gt;_<span className="terminal-btn-text"> cmd</span>
                     </span>
                   </button>
-                  {/* Phase 3: chapters button */}
-                  <TerminalChapterMenu />
+                  <TerminalChapterMenu open={chapterOpen} onToggle={openChapters} onClose={closeChapters} />
                   <TerminalVolume />
                   <TerminalFullscreenButton />
                 </div>

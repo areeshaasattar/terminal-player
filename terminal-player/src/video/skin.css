@@ -2687,6 +2687,87 @@
   }
 
   /* ==========================================================================
+     CHAPTER OVERLAY (mobile)
+     ========================================================================== */
+  .terminal-chapter-overlay {
+    position: relative;
+    width: 100%;
+    max-height: 40%;
+    background-color: rgba(13, 15, 18, 0.95);
+    border: 1px solid #1e2229;
+    border-bottom: none;
+    display: none;
+    flex-direction: column;
+    z-index: 40;
+    overflow: hidden;
+    pointer-events: auto;
+  }
+
+  .terminal-chapter-close {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: transparent;
+    border: none;
+    color: #5ce1e6;
+    font-size: 14px;
+    cursor: pointer;
+    min-height: 44px;
+    min-width: 44px;
+    font-family: inherit;
+    z-index: 2;
+  }
+
+  .terminal-chapter-close:focus-visible {
+    outline: 2px solid #5ce1e6 !important;
+    outline-offset: 2px !important;
+    box-shadow: 0 0 8px rgba(92, 225, 230, 0.6) !important;
+  }
+
+  .terminal-chapter-list {
+    overflow-y: auto;
+    flex: 1 1 auto;
+  }
+
+  .terminal-chapter-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 44px;
+    padding: 0 12px;
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #1a1d22;
+    color: #ffb000;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .terminal-chapter-row--active {
+    color: #ffb000;
+    background: rgba(255, 176, 0, 0.08);
+  }
+
+  .terminal-chapter-row:focus-visible {
+    outline: 2px solid #5ce1e6 !important;
+    outline-offset: -2px !important;
+    box-shadow: 0 0 8px rgba(92, 225, 230, 0.6) !important;
+  }
+
+  @container (max-width: 480px) {
+    .terminal-chapter-overlay {
+      display: flex;
+    }
+    .terminal-chapter-menu {
+      display: none !important;
+    }
+  }
+
+  /* ==========================================================================
      CONTAINER QUERIES (player-width based, desktop-safe)
      ========================================================================== */
   @container (max-width: 480px) {
@@ -2745,6 +2826,8 @@
     }
   }
 
+  /* (removed trailing unlayered rule) */
+
   /* ==========================================================================
      REDUCED MOTION
      ========================================================================== */
@@ -2769,6 +2852,8 @@
 /* ==========================================================================
    PHASE 1: COMMAND LINE
    ========================================================================== */
+
+/* Chapter overlay panel (mobile) - hidden on desktop by default (handled inside @layer) */
 
 /* Overlay panel that slides up over the lower part of the video */
 .terminal-cli-overlay {
